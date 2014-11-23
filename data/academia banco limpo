@@ -1,0 +1,1363 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.2.4
+-- Dumped by pg_dump version 9.2.4
+-- Started on 2013-09-02 15:08:26
+
+SET statement_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TOC entry 179 (class 3079 OID 11727)
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- TOC entry 2025 (class 0 OID 0)
+-- Dependencies: 179
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+--
+-- TOC entry 205 (class 1255 OID 16394)
+-- Name: adiciona_ponto(time without time zone, time without time zone, date, integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION adiciona_ponto(time without time zone, time without time zone, date, integer) RETURNS integer
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+codigo_ponto_novo integer;
+BEGIN
+
+    INSERT INTO ponto(entrada,saida,data_ponto,codigo_aluno) VALUES ($1,$2,$3,$4);
+
+ SELECT INTO codigo_ponto_novo  codigo_ponto FROM ponto WHERE entrada=$1 AND saida=$2 AND data_ponto=$3 AND codigo_aluno=$4;
+RETURN codigo_ponto_novo;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.adiciona_ponto(time without time zone, time without time zone, date, integer) OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 168 (class 1259 OID 16395)
+-- Name: aluno; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE aluno (
+    codigo_aluno integer NOT NULL,
+    nome character varying(100) NOT NULL,
+    sexo character(20) NOT NULL,
+    estado_civil character varying(20),
+    nacionalidade character varying(30),
+    cidade character varying(40),
+    uf character varying(3),
+    endereco character varying(200),
+    bairro character varying(100),
+    numero integer,
+    cep character varying(20),
+    telefone character varying(20),
+    celular character varying(20),
+    mail character varying(30),
+    data_nascimento date,
+    objetivo character varying(80),
+    observacao character varying(200),
+    rg character varying(20)
+);
+
+
+ALTER TABLE public.aluno OWNER TO postgres;
+
+--
+-- TOC entry 193 (class 1255 OID 16401)
+-- Name: busca_alunos_codigo(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION busca_alunos_codigo(integer) RETURNS SETOF aluno
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM  aluno WHERE aluno.codigo_aluno=$1; 
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.busca_alunos_codigo(integer) OWNER TO postgres;
+
+--
+-- TOC entry 206 (class 1255 OID 16402)
+-- Name: busca_alunos_nome(character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION busca_alunos_nome(character varying) RETURNS SETOF aluno
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+busca character varying := '%' || $1 || '%';
+BEGIN
+RETURN QUERY SELECT * FROM  aluno WHERE aluno.nome  ILIKE busca;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.busca_alunos_nome(character varying) OWNER TO postgres;
+
+--
+-- TOC entry 194 (class 1255 OID 16403)
+-- Name: busca_alunos_rg(numeric); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION busca_alunos_rg(numeric) RETURNS SETOF aluno
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM  aluno WHERE aluno.rg = $1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.busca_alunos_rg(numeric) OWNER TO postgres;
+
+--
+-- TOC entry 195 (class 1255 OID 16404)
+-- Name: busca_alunos_rg(character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION busca_alunos_rg(character varying) RETURNS SETOF aluno
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM  aluno WHERE aluno.rg = $1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.busca_alunos_rg(character varying) OWNER TO postgres;
+
+--
+-- TOC entry 169 (class 1259 OID 16405)
+-- Name: contato; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE contato (
+    codigo_contato integer NOT NULL,
+    codigo_aluno integer,
+    nome character varying(100),
+    telefone character varying(20),
+    cidade character varying(20),
+    uf character varying(3),
+    parentesco character varying(40)
+);
+
+
+ALTER TABLE public.contato OWNER TO postgres;
+
+--
+-- TOC entry 196 (class 1255 OID 16408)
+-- Name: busca_contato(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION busca_contato(integer) RETURNS SETOF contato
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT contato.* FROM contato  WHERE contato.codigo_aluno = $1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.busca_contato(integer) OWNER TO postgres;
+
+--
+-- TOC entry 170 (class 1259 OID 16409)
+-- Name: responsavel; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE responsavel (
+    codigo_responsavel integer NOT NULL,
+    codigo_aluno integer,
+    nome character varying(100),
+    telefone character varying(20),
+    rg character varying(20)
+);
+
+
+ALTER TABLE public.responsavel OWNER TO postgres;
+
+--
+-- TOC entry 197 (class 1255 OID 16412)
+-- Name: busca_responsavel(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION busca_responsavel(integer) RETURNS SETOF responsavel
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT responsavel.* FROM responsavel  WHERE responsavel.codigo_aluno = $1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.busca_responsavel(integer) OWNER TO postgres;
+
+--
+-- TOC entry 198 (class 1255 OID 16413)
+-- Name: cadastra_aluno(character varying, character, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying, character varying, date, character varying, character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION cadastra_aluno(character varying, character, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying, character varying, date, character varying, character varying, character varying) RETURNS integer
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+codigo_aluno_novo integer;
+BEGIN
+
+    INSERT INTO aluno( nome, sexo, estado_civil, nacionalidade, 
+     cidade, uf, endereco, bairro, numero,
+     cep, telefone, celular,mail, data_nascimento, 
+     rg, objetivo, observacao) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17);
+
+ SELECT INTO codigo_aluno_novo  codigo_aluno FROM aluno WHERE nome=$1 AND sexo=$2 AND estado_civil=$3 AND nacionalidade=$4 AND 
+     cidade=$5 AND uf=$6 AND endereco=$7 AND bairro=$8 AND numero=$9 AND
+     cep=$10 AND telefone=$11 AND celular=$12 AND mail=$13 AND data_nascimento=$14 AND 
+     rg=$15 AND objetivo=$16 AND observacao=$17;
+RETURN codigo_aluno_novo;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.cadastra_aluno(character varying, character, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying, character varying, date, character varying, character varying, character varying) OWNER TO postgres;
+
+--
+-- TOC entry 199 (class 1255 OID 16414)
+-- Name: cadastra_contato(integer, character varying, character varying, character varying, character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION cadastra_contato(integer, character varying, character varying, character varying, character varying, character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+    INSERT INTO contato( codigo_aluno, nome, telefone, cidade, uf, parentesco ) VALUES ($1,$2,$3,$4,$5,$6);
+RETURN ;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.cadastra_contato(integer, character varying, character varying, character varying, character varying, character varying) OWNER TO postgres;
+
+--
+-- TOC entry 224 (class 1255 OID 16500)
+-- Name: cadastra_digital(integer, character varying, bytea); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION cadastra_digital(integer, character varying, bytea) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+BEGIN
+ IF EXISTS (SELECT * FROM digital WHERE codigo_aluno = $1 AND dedo = $2) THEN
+  UPDATE digital SET fir = $3 WHERE codigo_aluno = $1 AND dedo = $2;
+ ELSE
+  INSERT INTO digital(codigo_aluno,dedo,fir) VALUES ($1,$2,$3);
+ END IF;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.cadastra_digital(integer, character varying, bytea) OWNER TO postgres;
+
+--
+-- TOC entry 223 (class 1255 OID 16501)
+-- Name: cadastra_digital(integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION cadastra_digital(integer, character varying, character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+BEGIN
+ IF EXISTS (SELECT * FROM digital WHERE codigo_aluno = $1 AND dedo = $2) THEN
+  UPDATE digital SET fir = $3 WHERE codigo_aluno = $1 AND dedo = $2;
+ ELSE
+  INSERT INTO digital(codigo_aluno,dedo,fir) VALUES ($1,$2,$3);
+ END IF;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.cadastra_digital(integer, character varying, character varying) OWNER TO postgres;
+
+--
+-- TOC entry 200 (class 1255 OID 16416)
+-- Name: cadastra_responsavel(integer, character varying, character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION cadastra_responsavel(integer, character varying, character varying, character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+BEGIN
+    INSERT INTO responsavel( codigo_aluno ,  nome ,  rg ,  telefone  ) VALUES ($1,$2,$3,$4);
+RETURN ;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.cadastra_responsavel(integer, character varying, character varying, character varying) OWNER TO postgres;
+
+--
+-- TOC entry 201 (class 1255 OID 16417)
+-- Name: edita_aluno(integer, character varying, character varying, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying, character varying, date, numeric, character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION edita_aluno(integer, character varying, character varying, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying, character varying, date, numeric, character varying, character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+
+    UPDATE aluno SET  nome=$2, sexo=$3, estado_civil=$4, nacionalidade=$5, 
+     cidade=$6, uf=$7, endereco=$8, bairro=$9, numero=$10,
+     cep=$11, telefone=$12, celular=$13,mail=$14, data_nascimento=$15, 
+      rg=$16, objetivo=$17, observacao=$18 WHERE codigo_aluno=$1;
+
+
+RETURN ;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.edita_aluno(integer, character varying, character varying, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying, character varying, date, numeric, character varying, character varying) OWNER TO postgres;
+
+--
+-- TOC entry 202 (class 1255 OID 16418)
+-- Name: edita_aluno(integer, character varying, character varying, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying, character varying, date, character varying, character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION edita_aluno(integer, character varying, character varying, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying, character varying, date, character varying, character varying, character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+
+    UPDATE aluno SET  nome=$2, sexo=$3, estado_civil=$4, nacionalidade=$5, 
+     cidade=$6, uf=$7, endereco=$8, bairro=$9, numero=$10,
+     cep=$11, telefone=$12, celular=$13,mail=$14, data_nascimento=$15, 
+      rg=$16, objetivo=$17, observacao=$18 WHERE codigo_aluno=$1;
+
+
+RETURN ;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.edita_aluno(integer, character varying, character varying, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying, character varying, date, character varying, character varying, character varying) OWNER TO postgres;
+
+--
+-- TOC entry 203 (class 1255 OID 16419)
+-- Name: edita_contato(integer, integer, character varying, character varying, character varying, character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION edita_contato(integer, integer, character varying, character varying, character varying, character varying, character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+
+    UPDATE contato SET   codigo_aluno=$2 ,  nome=$3 , telefone=$4 , cidade=$5 ,  uf=$6 , parentesco=$7 WHERE codigo_contato=$1;
+
+
+RETURN ;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.edita_contato(integer, integer, character varying, character varying, character varying, character varying, character varying) OWNER TO postgres;
+
+--
+-- TOC entry 204 (class 1255 OID 16420)
+-- Name: edita_ponto(integer, time without time zone, time without time zone, date, integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION edita_ponto(integer, time without time zone, time without time zone, date, integer) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+
+   UPDATE  ponto SET  entrada=$2 ,  saida=$3 ,  data_ponto =$4,  codigo_aluno =$5 WHERE codigo_ponto=$1;
+   RETURN ;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.edita_ponto(integer, time without time zone, time without time zone, date, integer) OWNER TO postgres;
+
+--
+-- TOC entry 207 (class 1255 OID 16421)
+-- Name: edita_responsavel(integer, integer, character varying, character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION edita_responsavel(integer, integer, character varying, character varying, character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+
+   UPDATE responsavel SET codigo_aluno=$2 ,  nome=$3 ,  rg=$4 ,  telefone=$5  WHERE codigo_responsavel=$1 ;
+
+
+RETURN ;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.edita_responsavel(integer, integer, character varying, character varying, character varying) OWNER TO postgres;
+
+--
+-- TOC entry 229 (class 1255 OID 16422)
+-- Name: exclui_aluno(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION exclui_aluno(integer) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+ DELETE FROM ponto WHERE codigo_aluno=$1;
+ DELETE FROM digital WHERE codigo_aluno=$1;  
+    DELETE FROM aluno WHERE codigo_aluno=$1;
+    DELETE FROM responsavel WHERE codigo_aluno=$1;
+    DELETE FROM contato WHERE codigo_aluno=$1;
+
+RETURN ;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.exclui_aluno(integer) OWNER TO postgres;
+
+--
+-- TOC entry 208 (class 1255 OID 16423)
+-- Name: exclui_ponto(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION exclui_ponto(integer) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+
+  DELETE FROM ponto WHERE codigo_ponto=$1;
+   RETURN ;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.exclui_ponto(integer) OWNER TO postgres;
+
+--
+-- TOC entry 209 (class 1255 OID 16424)
+-- Name: fechar_ponto(integer, time without time zone); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION fechar_ponto(integer, time without time zone) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+UPDATE ponto SET saida=$2 WHERE codigo_ponto=$1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.fechar_ponto(integer, time without time zone) OWNER TO postgres;
+
+--
+-- TOC entry 210 (class 1255 OID 16425)
+-- Name: lista_alunos_ponto_hoje(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_alunos_ponto_hoje() RETURNS SETOF aluno
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT alunos.* FROM  alunos,ponto WHERE ponto.codigo_aluno=aluno.codigo_aluno AND data='now';
+   
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_alunos_ponto_hoje() OWNER TO postgres;
+
+--
+-- TOC entry 211 (class 1255 OID 16426)
+-- Name: lista_alunos_ponto_ontem(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_alunos_ponto_ontem() RETURNS SETOF aluno
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM  alunos,ponto WHERE ponto.codigo_aluno=aluno.codigo_aluno AND data='yesterday';
+   
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_alunos_ponto_ontem() OWNER TO postgres;
+
+--
+-- TOC entry 171 (class 1259 OID 16427)
+-- Name: ponto; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE ponto (
+    codigo_ponto integer NOT NULL,
+    entrada time without time zone,
+    saida time without time zone,
+    codigo_aluno integer NOT NULL,
+    data_ponto date
+);
+
+
+ALTER TABLE public.ponto OWNER TO postgres;
+
+--
+-- TOC entry 212 (class 1255 OID 16430)
+-- Name: lista_anteontem(date); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_anteontem(date) RETURNS SETOF ponto
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM  ponto WHERE data=$1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.lista_anteontem(date) OWNER TO postgres;
+
+--
+-- TOC entry 213 (class 1255 OID 16431)
+-- Name: lista_bairro(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_bairro() RETURNS SETOF character varying
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT DISTINCT bairro FROM  aluno ORDER BY bairro;
+  
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_bairro() OWNER TO postgres;
+
+--
+-- TOC entry 214 (class 1255 OID 16432)
+-- Name: lista_cidade(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_cidade() RETURNS SETOF character varying
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+ 
+BEGIN
+ RETURN QUERY SELECT DISTINCT cidade FROM  aluno ORDER BY cidade;
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_cidade() OWNER TO postgres;
+
+--
+-- TOC entry 172 (class 1259 OID 16433)
+-- Name: digital; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE digital (
+    codigo_digital integer NOT NULL,
+    dedo character varying(20),
+    codigo_aluno integer,
+    fir character varying
+);
+
+
+ALTER TABLE public.digital OWNER TO postgres;
+
+--
+-- TOC entry 215 (class 1255 OID 16439)
+-- Name: lista_digitais(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_digitais() RETURNS SETOF digital
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM digital ;
+   
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_digitais() OWNER TO postgres;
+
+--
+-- TOC entry 189 (class 1255 OID 16506)
+-- Name: lista_digitais_aluno(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_digitais_aluno(integer) RETURNS SETOF digital
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM digital WHERE codigo_aluno = $1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.lista_digitais_aluno(integer) OWNER TO postgres;
+
+--
+-- TOC entry 216 (class 1255 OID 16440)
+-- Name: lista_estado_civil(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_estado_civil() RETURNS SETOF character varying
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+est character varying;
+lastest character varying:='';
+cont integer:= 0;
+nquery integer;
+BEGIN
+SELECT INTO nquery MAX(codigo_aluno) FROM aluno;
+WHILE cont <= nquery  LOOP
+SELECT INTO est estado_civil FROM aluno WHERE codigo_aluno = cont ;
+IF est != '' THEN
+IF est != lastest THEN
+  lastest:= est;
+  RETURN NEXT est;
+ END IF; 
+END IF;
+cont :=cont+1;
+END LOOP;
+RETURN;
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_estado_civil() OWNER TO postgres;
+
+--
+-- TOC entry 217 (class 1255 OID 16441)
+-- Name: lista_nacionalidade(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_nacionalidade() RETURNS SETOF character varying
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+ 
+BEGIN
+ RETURN QUERY SELECT DISTINCT nacionalidade FROM  aluno ORDER BY nacionalidade;
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_nacionalidade() OWNER TO postgres;
+
+--
+-- TOC entry 218 (class 1255 OID 16442)
+-- Name: lista_ontem(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ontem() RETURNS SETOF aluno
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM  alunos,ponto WHERE ponto.codigo_aluno=aluno.codigo_aluno AND data='yesterday';
+   
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_ontem() OWNER TO postgres;
+
+--
+-- TOC entry 227 (class 1255 OID 16504)
+-- Name: lista_ponto(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ponto() RETURNS SETOF ponto
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM ponto ;
+   
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_ponto() OWNER TO postgres;
+
+--
+-- TOC entry 228 (class 1255 OID 16502)
+-- Name: lista_ponto_aberto(date); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ponto_aberto(date) RETURNS SETOF ponto
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM ponto WHERE ponto.data_ponto=$1 AND ponto.saida IS NULL ;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.lista_ponto_aberto(date) OWNER TO postgres;
+
+--
+-- TOC entry 225 (class 1255 OID 16444)
+-- Name: lista_ponto_aberto_aluno(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ponto_aberto_aluno(integer) RETURNS SETOF ponto
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM ponto WHERE ponto.data_ponto='today' AND ponto.saida IS NULL AND codigo_aluno = $1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.lista_ponto_aberto_aluno(integer) OWNER TO postgres;
+
+--
+-- TOC entry 226 (class 1255 OID 16503)
+-- Name: lista_ponto_aberto_aluno(integer, date); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ponto_aberto_aluno(integer, date) RETURNS SETOF ponto
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM ponto WHERE ponto.data_ponto=$2 AND ponto.saida IS NULL AND codigo_aluno = $1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.lista_ponto_aberto_aluno(integer, date) OWNER TO postgres;
+
+--
+-- TOC entry 219 (class 1255 OID 16445)
+-- Name: lista_ponto_anterior_aberto(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ponto_anterior_aberto() RETURNS SETOF ponto
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+
+BEGIN
+
+  RETURN QUERY SELECT * FROM ponto WHERE data='yesterday' AND saida IS NULL;
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_ponto_anterior_aberto() OWNER TO postgres;
+
+--
+-- TOC entry 220 (class 1255 OID 16446)
+-- Name: lista_ponto_data(date); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ponto_data(date) RETURNS SETOF aluno
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM  alunos,ponto WHERE ponto.codigo_aluno=aluno.codigo_aluno AND data=$1;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.lista_ponto_data(date) OWNER TO postgres;
+
+--
+-- TOC entry 221 (class 1255 OID 16447)
+-- Name: lista_ponto_ontem(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ponto_ontem() RETURNS SETOF aluno
+    LANGUAGE plpgsql
+    AS $$
+
+DECLARE
+
+BEGIN
+RETURN QUERY SELECT * FROM  alunos,ponto WHERE ponto.codigo_aluno=aluno.codigo_aluno AND data='yesterday';
+   
+END; 
+$$;
+
+
+ALTER FUNCTION public.lista_ponto_ontem() OWNER TO postgres;
+
+--
+-- TOC entry 230 (class 1255 OID 16508)
+-- Name: lista_ponto_ultimo_aluno(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ponto_ultimo_aluno(integer) RETURNS SETOF ponto
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+ultimo integer;
+BEGIN
+SELECT INTO ultimo MAX(codigo_ponto) FROM ponto WHERE codigo_aluno = $1;
+RETURN QUERY SELECT * FROM ponto WHERE codigo_ponto = ultimo;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.lista_ponto_ultimo_aluno(integer) OWNER TO postgres;
+
+--
+-- TOC entry 231 (class 1255 OID 16509)
+-- Name: lista_ponto_ultimo_aluno(integer, date); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION lista_ponto_ultimo_aluno(integer, date) RETURNS SETOF ponto
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+ultimo integer;
+BEGIN
+SELECT INTO ultimo MAX(codigo_ponto) FROM ponto WHERE codigo_aluno = $1;
+RETURN QUERY SELECT * FROM ponto WHERE codigo_ponto = ultimo AND data_ponto=$2;
+   
+END; 
+$_$;
+
+
+ALTER FUNCTION public.lista_ponto_ultimo_aluno(integer, date) OWNER TO postgres;
+
+--
+-- TOC entry 222 (class 1255 OID 16448)
+-- Name: listar_ponto_aluno(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION listar_ponto_aluno(integer) RETURNS SETOF ponto
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+
+BEGIN
+
+  RETURN QUERY SELECT * FROM ponto WHERE codigo_aluno=$1;
+END; 
+$_$;
+
+
+ALTER FUNCTION public.listar_ponto_aluno(integer) OWNER TO postgres;
+
+--
+-- TOC entry 173 (class 1259 OID 16449)
+-- Name: aluno_codigo_aluno_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE aluno_codigo_aluno_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.aluno_codigo_aluno_seq OWNER TO postgres;
+
+--
+-- TOC entry 2026 (class 0 OID 0)
+-- Dependencies: 173
+-- Name: aluno_codigo_aluno_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE aluno_codigo_aluno_seq OWNED BY aluno.codigo_aluno;
+
+
+--
+-- TOC entry 174 (class 1259 OID 16451)
+-- Name: contato_codigo_contato_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE contato_codigo_contato_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.contato_codigo_contato_seq OWNER TO postgres;
+
+--
+-- TOC entry 2027 (class 0 OID 0)
+-- Dependencies: 174
+-- Name: contato_codigo_contato_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE contato_codigo_contato_seq OWNED BY contato.codigo_contato;
+
+
+--
+-- TOC entry 175 (class 1259 OID 16453)
+-- Name: digital_codigo_digital_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE digital_codigo_digital_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.digital_codigo_digital_seq OWNER TO postgres;
+
+--
+-- TOC entry 2028 (class 0 OID 0)
+-- Dependencies: 175
+-- Name: digital_codigo_digital_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE digital_codigo_digital_seq OWNED BY digital.codigo_digital;
+
+
+--
+-- TOC entry 176 (class 1259 OID 16455)
+-- Name: ponto_codigo_ponto_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE ponto_codigo_ponto_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.ponto_codigo_ponto_seq OWNER TO postgres;
+
+--
+-- TOC entry 2029 (class 0 OID 0)
+-- Dependencies: 176
+-- Name: ponto_codigo_ponto_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE ponto_codigo_ponto_seq OWNED BY ponto.codigo_ponto;
+
+
+--
+-- TOC entry 177 (class 1259 OID 16457)
+-- Name: responsavel_codigo_responsavel_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE responsavel_codigo_responsavel_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.responsavel_codigo_responsavel_seq OWNER TO postgres;
+
+--
+-- TOC entry 2030 (class 0 OID 0)
+-- Dependencies: 177
+-- Name: responsavel_codigo_responsavel_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE responsavel_codigo_responsavel_seq OWNED BY responsavel.codigo_responsavel;
+
+
+--
+-- TOC entry 178 (class 1259 OID 16459)
+-- Name: ver_alunos; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW ver_alunos AS
+    SELECT aluno.codigo_aluno, aluno.nome, aluno.sexo, aluno.estado_civil, aluno.nacionalidade, aluno.cidade, aluno.uf, aluno.endereco, aluno.bairro, aluno.numero, aluno.cep, aluno.telefone, aluno.celular, aluno.mail, aluno.data_nascimento, aluno.rg, aluno.objetivo, aluno.observacao FROM aluno;
+
+
+ALTER TABLE public.ver_alunos OWNER TO postgres;
+
+--
+-- TOC entry 1987 (class 2604 OID 16463)
+-- Name: codigo_aluno; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY aluno ALTER COLUMN codigo_aluno SET DEFAULT nextval('aluno_codigo_aluno_seq'::regclass);
+
+
+--
+-- TOC entry 1988 (class 2604 OID 16464)
+-- Name: codigo_contato; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY contato ALTER COLUMN codigo_contato SET DEFAULT nextval('contato_codigo_contato_seq'::regclass);
+
+
+--
+-- TOC entry 1991 (class 2604 OID 16465)
+-- Name: codigo_digital; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY digital ALTER COLUMN codigo_digital SET DEFAULT nextval('digital_codigo_digital_seq'::regclass);
+
+
+--
+-- TOC entry 1990 (class 2604 OID 16466)
+-- Name: codigo_ponto; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY ponto ALTER COLUMN codigo_ponto SET DEFAULT nextval('ponto_codigo_ponto_seq'::regclass);
+
+
+--
+-- TOC entry 1989 (class 2604 OID 16467)
+-- Name: codigo_responsavel; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY responsavel ALTER COLUMN codigo_responsavel SET DEFAULT nextval('responsavel_codigo_responsavel_seq'::regclass);
+
+
+--
+-- TOC entry 2008 (class 0 OID 16395)
+-- Dependencies: 168
+-- Data for Name: aluno; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY aluno (codigo_aluno, nome, sexo, estado_civil, nacionalidade, cidade, uf, endereco, bairro, numero, cep, telefone, celular, mail, data_nascimento, objetivo, observacao, rg) FROM stdin;
+\.
+
+
+--
+-- TOC entry 2031 (class 0 OID 0)
+-- Dependencies: 173
+-- Name: aluno_codigo_aluno_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('aluno_codigo_aluno_seq', 28, true);
+
+
+--
+-- TOC entry 2009 (class 0 OID 16405)
+-- Dependencies: 169
+-- Data for Name: contato; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY contato (codigo_contato, codigo_aluno, nome, telefone, cidade, uf, parentesco) FROM stdin;
+\.
+
+
+--
+-- TOC entry 2032 (class 0 OID 0)
+-- Dependencies: 174
+-- Name: contato_codigo_contato_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('contato_codigo_contato_seq', 18, true);
+
+
+--
+-- TOC entry 2012 (class 0 OID 16433)
+-- Dependencies: 172
+-- Data for Name: digital; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY digital (codigo_digital, dedo, codigo_aluno, fir) FROM stdin;
+\.
+
+
+--
+-- TOC entry 2033 (class 0 OID 0)
+-- Dependencies: 175
+-- Name: digital_codigo_digital_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('digital_codigo_digital_seq', 16, true);
+
+
+--
+-- TOC entry 2011 (class 0 OID 16427)
+-- Dependencies: 171
+-- Data for Name: ponto; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY ponto (codigo_ponto, entrada, saida, codigo_aluno, data_ponto) FROM stdin;
+\.
+
+
+--
+-- TOC entry 2034 (class 0 OID 0)
+-- Dependencies: 176
+-- Name: ponto_codigo_ponto_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('ponto_codigo_ponto_seq', 111, true);
+
+
+--
+-- TOC entry 2010 (class 0 OID 16409)
+-- Dependencies: 170
+-- Data for Name: responsavel; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY responsavel (codigo_responsavel, codigo_aluno, nome, telefone, rg) FROM stdin;
+\.
+
+
+--
+-- TOC entry 2035 (class 0 OID 0)
+-- Dependencies: 177
+-- Name: responsavel_codigo_responsavel_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('responsavel_codigo_responsavel_seq', 4, true);
+
+
+--
+-- TOC entry 1993 (class 2606 OID 16469)
+-- Name: pk_aluno; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY aluno
+    ADD CONSTRAINT pk_aluno PRIMARY KEY (codigo_aluno);
+
+
+--
+-- TOC entry 1996 (class 2606 OID 16471)
+-- Name: pk_contato; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY contato
+    ADD CONSTRAINT pk_contato PRIMARY KEY (codigo_contato);
+
+
+--
+-- TOC entry 2003 (class 2606 OID 16473)
+-- Name: pk_digital; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY digital
+    ADD CONSTRAINT pk_digital PRIMARY KEY (codigo_digital);
+
+
+--
+-- TOC entry 2000 (class 2606 OID 16475)
+-- Name: pk_ponto; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY ponto
+    ADD CONSTRAINT pk_ponto PRIMARY KEY (codigo_ponto);
+
+
+--
+-- TOC entry 1998 (class 2606 OID 16477)
+-- Name: pk_responsavel; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY responsavel
+    ADD CONSTRAINT pk_responsavel PRIMARY KEY (codigo_responsavel);
+
+
+--
+-- TOC entry 1994 (class 1259 OID 16478)
+-- Name: fki_pe_aluno; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX fki_pe_aluno ON contato USING btree (codigo_aluno);
+
+
+--
+-- TOC entry 2001 (class 1259 OID 16479)
+-- Name: fki_pe_digital_aluno; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX fki_pe_digital_aluno ON digital USING btree (codigo_aluno);
+
+
+--
+-- TOC entry 2004 (class 2606 OID 16480)
+-- Name: pe_aluno; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY contato
+    ADD CONSTRAINT pe_aluno FOREIGN KEY (codigo_aluno) REFERENCES aluno(codigo_aluno) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 2006 (class 2606 OID 16485)
+-- Name: pe_aluno; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY ponto
+    ADD CONSTRAINT pe_aluno FOREIGN KEY (codigo_aluno) REFERENCES aluno(codigo_aluno) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 2005 (class 2606 OID 16490)
+-- Name: pe_aluno; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY responsavel
+    ADD CONSTRAINT pe_aluno FOREIGN KEY (codigo_aluno) REFERENCES aluno(codigo_aluno) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 2007 (class 2606 OID 16495)
+-- Name: pe_digital_aluno; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY digital
+    ADD CONSTRAINT pe_digital_aluno FOREIGN KEY (codigo_aluno) REFERENCES aluno(codigo_aluno);
+
+
+--
+-- TOC entry 2024 (class 0 OID 0)
+-- Dependencies: 6
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+-- Completed on 2013-09-02 15:08:27
+
+--
+-- PostgreSQL database dump complete
+--
+
